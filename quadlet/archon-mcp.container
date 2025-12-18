@@ -1,0 +1,17 @@
+# archon-mcp.container
+[Unit]
+Requires=archon-server.service
+After=archon-server.service
+
+[Container]
+ContainerName=archon-mcp
+EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
+EnvironmentFile=%h/Projects/archon/.env
+HealthCmd=["sh","-c","python -c \"import socket; s=socket.socket(); s.connect(('localhost', 8051)); s.close()\""]
+HealthInterval=30s
+HealthRetries=3
+HealthStartPeriod=1m
+HealthTimeout=10s
+Image=archon-mcp
+Network=archon-network
+Pod=archon.pod

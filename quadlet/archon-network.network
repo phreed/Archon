@@ -1,0 +1,3 @@
+# archon-network.network
+[Network]
+Driver=bridge

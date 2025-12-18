@@ -1,0 +1,7 @@
+[Volume]
+Name=archon-frontend-public
+# 'none' + 'bind' options is the standard way to do a host bind
+# This is a bit overengineered, but it makes it easier to switch volume types
+Type=none
+Device=%h/Projects/archon/archon-ui-main/public
+Options=bind,z

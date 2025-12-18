@@ -1,0 +1,17 @@
+# archon-archon-server.container
+[Container]
+ContainerName=archon-server
+EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
+EnvironmentFile=%h/Projects/archon/.env
+Exec=python -m uvicorn src.server.main:app --host 0.0.0.0 --port 8181 --reload
+HealthCmd=["sh","-c","python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8181/health')\""]
+HealthInterval=30s
+HealthRetries=3
+HealthStartPeriod=40s
+HealthTimeout=10s
+Image=archon-server
+Network=archon-network
+Pod=archon.pod
+Volume=archon-server-src:/app/src
+Volume=archon-server-tests:/app/tests
+Volume=archon-server-migration:/app/migration

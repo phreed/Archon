@@ -1,0 +1,20 @@
+[Unit]
+Description=Archon Agents Service
+ConditionPathExists=/etc/podman/systemd/users/%U/agents.enabled
+
+[Container]
+ContainerName=archon-agents
+Image=archon-agents
+Network=archon-network
+Pod=archon.pod
+
+# Environment file
+EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
+EnvironmentFile=%h/Projects/archon/.env
+
+# Healthcheck
+HealthCmd=["CMD", "sh", "-c", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8052/health')\""]
+HealthInterval=30s
+HealthTimeout=10s
+HealthRetries=3
+HealthStartPeriod=40s

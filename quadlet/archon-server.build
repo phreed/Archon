@@ -1,0 +1,6 @@
+[Build]
+ContainerFile=Dockerfile.server
+ContextDir=%h/Projects/archon/python
+Image=archon-server
+BuildArg=BUILDKIT_INLINE_CACHE=1
+BuildArg=ARCHON_SERVER_PORT=8181

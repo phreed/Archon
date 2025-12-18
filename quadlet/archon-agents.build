@@ -1,0 +1,6 @@
+[Build]
+ContainerFile=Dockerfile.agents
+ContextDir=%h/Projects/archon/python
+Image=archon-agents
+BuildArg=BUILDKIT_INLINE_CACHE=1
+BuildArg=ARCHON_AGENTS_PORT=8052

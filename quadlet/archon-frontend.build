@@ -1,0 +1,3 @@
+[Build]
+ContextDir=%h/Projects/archon/archon-ui-main
+Image=archon-frontend

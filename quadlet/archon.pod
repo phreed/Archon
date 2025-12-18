@@ -1,0 +1,6 @@
+# archon.pod
+[Pod]
+PodName=archon.pod
+PublishPort=3737:3737
+PublishPort=8181:8181
+PublishPort=8051:8051

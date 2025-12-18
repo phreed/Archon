@@ -1,0 +1,18 @@
+# archon-frontend.container
+[Unit]
+Requires=archon-server.service
+After=archon-server.service
+
+[Container]
+ContainerName=archon-ui
+EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
+EnvironmentFile=%h/Projects/archon/.env
+HealthCmd=["curl","-f","http://localhost:3737"]
+HealthInterval=30s
+HealthRetries=3
+HealthTimeout=10s
+Image=archon-frontend
+Network=archon-network
+Pod=archon.pod
+Volume=archon-frontend-src:/app/src
+Volume=archon-frontend-public:/app/public
