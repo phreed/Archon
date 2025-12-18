@@ -1,6 +1,9 @@
+[Unit]
+Description=Build Archon FastAPI Backend Server Container Image
+
 [Build]
-ContainerFile=Dockerfile.server
-ContextDir=%h/Projects/archon/python
+File=Dockerfile.server
+SetWorkingDirectory=${PROJ_PATH}/python
 Image=archon-server
 BuildArg=BUILDKIT_INLINE_CACHE=1
 BuildArg=ARCHON_SERVER_PORT=8181

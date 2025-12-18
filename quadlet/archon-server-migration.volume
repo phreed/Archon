@@ -1,3 +1,6 @@
+[Unit]
+Description=Archon Server Migration Files Volume for Version Tracking
+
 [Volume]
 Name=archon-server-migration
 # 'none' + 'bind' options is the standard way to do a host bind

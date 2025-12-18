@@ -1,0 +1,11 @@
+# archon-docs.build
+[Unit]
+Description=Build Archon Documentation Site Container Image with Docusaurus
+
+[Build]
+ImageName=archon-docs
+SetWorkingDirectory=${PROJ_PATH}/docs
+File=Dockerfile
+
+[Install]
+WantedBy=default.target

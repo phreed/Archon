@@ -1,6 +1,9 @@
+[Unit]
+Description=Build Archon Model Context Protocol Server Container Image
+
 [Build]
-ContainerFile=Dockerfile.mcp
-ContextDir=%h/Projects/archon/python
+File=Dockerfile.mcp
+SetWorkingDirectory=${PROJ_PATH}/python
 Image=archon-mcp
 BuildArg=BUILDKIT_INLINE_CACHE=1
 BuildArg=ARCHON_MCP_PORT=8051

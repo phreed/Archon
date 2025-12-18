@@ -1,6 +1,9 @@
+[Unit]
+Description=Build Archon AI Agents Container Image for ML Interface
+
 [Build]
-ContainerFile=Dockerfile.agents
-ContextDir=%h/Projects/archon/python
+File=Dockerfile.agents
+SetWorkingDirectory=${PROJ_PATH}/python
 Image=archon-agents
 BuildArg=BUILDKIT_INLINE_CACHE=1
 BuildArg=ARCHON_AGENTS_PORT=8052

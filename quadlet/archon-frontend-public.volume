@@ -1,3 +1,6 @@
+[Unit]
+Description=Archon Frontend Public Assets Volume for Static Files
+
 [Volume]
 Name=archon-frontend-public
 # 'none' + 'bind' options is the standard way to do a host bind

@@ -1,3 +1,6 @@
+[Unit]
+Description=Archon Frontend Source Code Volume for Hot-Reload Development
+
 [Volume]
 Name=archon-frontend-src
 # 'none' + 'bind' options is the standard way to do a host bind

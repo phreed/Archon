@@ -1,12 +1,13 @@
 # archon-mcp.container
 [Unit]
+Description=Archon Model Context Protocol Server for AI Tool Integration
 Requires=archon-server.service
 After=archon-server.service
 
 [Container]
 ContainerName=archon-mcp
-EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
-EnvironmentFile=%h/Projects/archon/.env
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
 HealthCmd=["sh","-c","python -c \"import socket; s=socket.socket(); s.connect(('localhost', 8051)); s.close()\""]
 HealthInterval=30s
 HealthRetries=3

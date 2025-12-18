@@ -1,8 +1,11 @@
 # archon-archon-server.container
+[Unit]
+Description=Archon FastAPI Backend Server with Crawling and WebSocket Support
+
 [Container]
 ContainerName=archon-server
-EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
-EnvironmentFile=%h/Projects/archon/.env
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
 Exec=python -m uvicorn src.server.main:app --host 0.0.0.0 --port 8181 --reload
 HealthCmd=["sh","-c","python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8181/health')\""]
 HealthInterval=30s

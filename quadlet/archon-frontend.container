@@ -1,12 +1,13 @@
 # archon-frontend.container
 [Unit]
+Description=Archon React Frontend UI with Vite Development Server
 Requires=archon-server.service
 After=archon-server.service
 
 [Container]
 ContainerName=archon-ui
-EnvironmentFile=%h/Projects/archon/quadlet/env.defaults
-EnvironmentFile=%h/Projects/archon/.env
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
 HealthCmd=["curl","-f","http://localhost:3737"]
 HealthInterval=30s
 HealthRetries=3

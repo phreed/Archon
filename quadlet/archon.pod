@@ -1,4 +1,7 @@
 # archon.pod
+[Unit]
+Description=Archon Pod for Service Networking and Port Management
+
 [Pod]
 PodName=archon.pod
 PublishPort=3737:3737
