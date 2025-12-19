@@ -2,7 +2,7 @@
 Description=Archon Server Migration Files Volume for Version Tracking
 
 [Volume]
-Name=archon-server-migration
+VolumeName=archon-server-migration
 # 'none' + 'bind' options is the standard way to do a host bind
 # This is a bit overengineered, but it makes it easier to switch volume types
 Type=none

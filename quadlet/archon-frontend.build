@@ -3,4 +3,4 @@ Description=Build Archon React Frontend Container Image
 
 [Build]
 SetWorkingDirectory=${PROJ_PATH}/archon-ui-main
-Image=archon-frontend
+ImageTag=archon-frontend:latest

@@ -2,7 +2,7 @@
 Description=Archon Frontend Public Assets Volume for Static Files
 
 [Volume]
-Name=archon-frontend-public
+VolumeName=archon-frontend-public
 # 'none' + 'bind' options is the standard way to do a host bind
 # This is a bit overengineered, but it makes it easier to switch volume types
 Type=none

@@ -4,7 +4,7 @@ ConditionPathExists=/etc/podman/systemd/users/%U/agents.enabled
 
 [Container]
 ContainerName=archon-agents
-Image=archon-agents
+Image=localhost/archon-agents:latest
 Network=archon-network
 Pod=archon.pod
 

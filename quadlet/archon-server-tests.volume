@@ -2,7 +2,7 @@
 Description=Archon Server Tests Volume for Development Test Execution
 
 [Volume]
-Name=archon-server-tests
+VolumeName=archon-server-tests
 # 'none' + 'bind' options is the standard way to do a host bind
 # This is a bit overengineered, but it makes it easier to switch volume types
 Type=none

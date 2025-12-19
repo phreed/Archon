@@ -3,4 +3,5 @@
 Description=Archon Bridge Network for Inter-Service Communication
 
 [Network]
+NetworkName=archon-network
 Driver=bridge

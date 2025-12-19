@@ -25,10 +25,10 @@ echo
 
 # Determine the best installation directory
 if [[ -n "$XDG_CONFIG_HOME" ]]; then
-    QUADLET_DIR="$XDG_CONFIG_HOME/containers/systemd"
+    QUADLET_DIR="$XDG_CONFIG_HOME/containers/systemd/archon"
     LOCATION_TYPE="config"
 else
-    QUADLET_DIR="$HOME/.config/containers/systemd"
+    QUADLET_DIR="$HOME/.config/containers/systemd/archon"
     LOCATION_TYPE="config"
 fi
 

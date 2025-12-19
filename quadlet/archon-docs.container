@@ -10,7 +10,7 @@ HealthCmd=["curl","-f","http://localhost:80"]
 HealthInterval=30s
 HealthRetries=3
 HealthTimeout=10s
-Image=archon-docs
+Image=localhost/archon-docs:latest
 Network=archon-network
 PublishPort=3838:80
 

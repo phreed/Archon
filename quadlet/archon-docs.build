@@ -3,7 +3,7 @@
 Description=Build Archon Documentation Site Container Image with Docusaurus
 
 [Build]
-ImageName=archon-docs
+ImageTag=archon-docs:latest
 SetWorkingDirectory=${PROJ_PATH}/docs
 File=Dockerfile
 

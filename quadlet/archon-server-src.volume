@@ -2,7 +2,7 @@
 Description=Archon Server Source Code Volume for Hot-Reload Development
 
 [Volume]
-Name=archon-server-src
+VolumeName=archon-server-src
 # 'none' + 'bind' options is the standard way to do a host bind
 # This is a bit overengineered, but it makes it easier to switch volume types
 Type=none
