@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# switch-mode.sh - Switch between pod and standalone deployment modes
+# switch-mode.sh - Switch between pod (host networking) and standalone deployment modes
 # Usage: ./switch-mode.sh [pod|standalone] [--install]
 
 set -e
@@ -38,7 +38,7 @@ show_help() {
     echo "  $0 [MODE] [OPTIONS]"
     echo
     echo -e "${CYAN}Modes:${NC}"
-    echo "  pod        - Deploy services in a shared pod (recommended for production)"
+    echo "  pod        - Deploy services in a shared pod with host networking (recommended for production)"
     echo "  standalone - Deploy services as individual containers (easier debugging)"
     echo "  status     - Show current deployment mode and service status"
     echo
@@ -47,10 +47,15 @@ show_help() {
     echo "  --help     - Show this help message"
     echo
     echo -e "${CYAN}Examples:${NC}"
-    echo "  $0 standalone          # Switch to standalone mode"
     echo "  $0 pod --install       # Switch to pod mode and install files"
+    echo "  $0 standalone          # Switch to standalone mode"
     echo "  $0 status              # Check current mode"
     echo
+    echo -e "${CYAN}Pod Mode Benefits:${NC}"
+    echo "  • Host networking for maximum reliability"
+    echo "  • No pasta networking issues"
+    echo "  • Better resource management"
+    echo "  • Production-ready configuration"
 }
 
 # Function to stop all archon services
@@ -104,13 +109,14 @@ show_status() {
 
         if systemctl --user is-active --quiet archon.pod 2>/dev/null; then
             echo -e "\n${CYAN}Pod Status:${NC}"
-            echo -e "  ${GREEN}●${NC} archon.pod (active)"
-            echo
-            echo -e "${CYAN}Published Ports:${NC}"
-            echo "  • Frontend:      http://localhost:3737"
-            echo "  • API Server:    http://localhost:8181"
-            echo "  • MCP Server:    http://localhost:8051"
+            echo -e "  ${GREEN}●${NC} archon.pod (active - host networking)"
         fi
+
+        echo
+        echo -e "${CYAN}Published Ports:${NC}"
+        echo "  • Frontend:      http://localhost:3737"
+        echo "  • API Server:    http://localhost:8181"
+        echo "  • MCP Server:    http://localhost:8051"
 
     elif [[ "$CURRENT_MODE" == "standalone" ]]; then
         echo -e "${CYAN}Standalone Services:${NC}"
@@ -181,7 +187,7 @@ install_quadlet_files() {
     done
 
     if [[ "$mode" == "pod" ]]; then
-        echo -e "  📄 Installing pod configuration..."
+        echo -e "  📄 Installing pod configuration (host networking)..."
         update_env "archon.pod" "$SCRIPT_DIR/archon.pod"
 
         # Install pod-based container files
@@ -208,7 +214,7 @@ install_quadlet_files() {
 switch_to_pod() {
     local install_files=$1
 
-    echo -e "${BLUE}🚀 Switching to Pod Mode${NC}"
+    echo -e "${BLUE}🚀 Switching to Pod Mode (Host Networking)${NC}"
     echo
 
     stop_all_services
@@ -226,10 +232,10 @@ switch_to_pod() {
     systemctl --user start archon-mcp.service
 
     echo
-    echo -e "${GREEN}✅ Switched to pod mode${NC}"
-    echo -e "${CYAN}💡 Note:${NC} Pod networking may have connection issues on some systems"
+    echo -e "${GREEN}✅ Switched to pod mode (host networking)${NC}"
+    echo -e "${CYAN}💡 Benefits:${NC} Host networking eliminates pasta connection issues"
     echo -e "${CYAN}📝 Services:${NC}"
-    echo "  • Pod:           archon.pod"
+    echo "  • Pod:           archon.pod (host networking)"
     echo "  • Backend:       archon-server.service"
     echo "  • Frontend:      archon-frontend.service"
     echo "  • MCP:           archon-mcp.service"
@@ -262,7 +268,7 @@ switch_to_standalone() {
 
     echo
     echo -e "${GREEN}✅ Switched to standalone mode${NC}"
-    echo -e "${CYAN}💡 Note:${NC} Individual containers with direct port publishing"
+    echo -e "${CYAN}💡 Benefits:${NC} Individual containers with direct port publishing (easier debugging)"
     echo -e "${CYAN}📝 Services:${NC}"
     echo "  • Backend:       archon-server-standalone.service"
     echo "  • Frontend:      archon-frontend-standalone.service"

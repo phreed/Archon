@@ -1,9 +1,21 @@
-# archon.pod
+# archon.pod - Host Networking Pod Configuration
+# This configuration uses host networking to bypass pasta networking issues
 [Unit]
-Description=Archon Pod for Service Networking and Port Management
+Description=Archon Pod with Host Networking (Production Ready)
+Documentation=https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-docker-users.md
 
 [Pod]
 PodName=archon.pod
-PublishPort=3737:3737
-PublishPort=8181:8181
-PublishPort=8051:8051
+# Use host networking to bypass pasta networking issues completely
+Network=host
+# No need for PublishPort with host networking - containers bind directly to host ports
+
+[Service]
+# Add restart policy for better reliability
+Restart=on-failure
+RestartSec=10s
+TimeoutStartSec=300s
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=default.target

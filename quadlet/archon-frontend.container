@@ -1,6 +1,6 @@
 # archon-frontend.container
 [Unit]
-Description=Archon React Frontend UI with Vite Development Server
+Description=Archon React Frontend UI with Vite Development Server (Host Networking)
 Requires=archon-server.service
 After=archon-server.service
 
@@ -8,12 +8,20 @@ After=archon-server.service
 ContainerName=archon-ui
 EnvironmentFile=${ENV_PATH_DEFAULT}
 EnvironmentFile=${ENV_PATH}
+# Use port 3737 directly on host network
+Environment=PORT=3737
+Environment=HOST=0.0.0.0
+# Set Vite to allow all hosts for host networking
+Environment=VITE_ALLOWED_HOSTS=auto
 HealthCmd=["curl","-f","http://localhost:3737"]
 HealthInterval=30s
 HealthRetries=3
 HealthTimeout=10s
 Image=localhost/archon-frontend:latest
-Network=archon-network
+# Use host networking pod
 Pod=archon.pod
 Volume=archon-frontend-src:/app/src
 Volume=archon-frontend-public:/app/public
+
+[Install]
+WantedBy=default.target

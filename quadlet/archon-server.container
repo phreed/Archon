@@ -1,20 +1,26 @@
-# archon-archon-server.container
+# archon-server.container
 [Unit]
-Description=Archon FastAPI Backend Server with Crawling and WebSocket Support
+Description=Archon FastAPI Backend Server with Crawling and WebSocket Support (Host Networking)
 
 [Container]
 ContainerName=archon-server
 EnvironmentFile=${ENV_PATH_DEFAULT}
 EnvironmentFile=${ENV_PATH}
 Exec=python -m uvicorn src.server.main:app --host 0.0.0.0 --port 8181 --reload
+# Use port 8181 directly on host network
+Environment=PORT=8181
+Environment=HOST=0.0.0.0
 HealthCmd=["sh","-c","python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8181/health')\""]
 HealthInterval=30s
 HealthRetries=3
 HealthStartPeriod=40s
 HealthTimeout=10s
 Image=localhost/archon-server:latest
-Network=archon-network
+# Use host networking pod
 Pod=archon.pod
 Volume=archon-server-src:/app/src
 Volume=archon-server-tests:/app/tests
 Volume=archon-server-migration:/app/migration
+
+[Install]
+WantedBy=default.target

@@ -1,6 +1,6 @@
 # archon-mcp.container
 [Unit]
-Description=Archon Model Context Protocol Server for AI Tool Integration
+Description=Archon Model Context Protocol Server (Host Networking) for AI Tool Integration
 Requires=archon-server.service
 After=archon-server.service
 
@@ -8,11 +8,17 @@ After=archon-server.service
 ContainerName=archon-mcp
 EnvironmentFile=${ENV_PATH_DEFAULT}
 EnvironmentFile=${ENV_PATH}
+# Use port 8051 directly on host network
+Environment=PORT=8051
+Environment=HOST=0.0.0.0
 HealthCmd=["sh","-c","python -c \"import socket; s=socket.socket(); s.connect(('localhost', 8051)); s.close()\""]
 HealthInterval=30s
 HealthRetries=3
 HealthStartPeriod=1m
 HealthTimeout=10s
 Image=localhost/archon-mcp:latest
-Network=archon-network
+# Use host networking pod
 Pod=archon.pod
+
+[Install]
+WantedBy=default.target

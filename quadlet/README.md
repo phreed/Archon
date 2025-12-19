@@ -5,6 +5,29 @@
 This directory contains quadlet configuration files for running Archon services using rootless systemctl. 
 Quadlet is a systemd generator that creates systemd services from container configuration files.
 
+## 🚨 Pod Networking Solution
+
+**Quick Fix for Connection Issues:**
+```bash
+# If you experience "Connection reset by peer" errors:
+./switch-mode.sh pod --install  # Use host networking (reliable solution)
+```
+
+### Available Deployment Modes
+
+| Mode | Command | Description | Best For |
+|------|---------|-------------|----------|
+| **pod** | `./switch-mode.sh pod` | Host networking pod (eliminates pasta issues) | ⭐⭐⭐ Production |
+| **standalone** | `./switch-mode.sh standalone` | Individual containers | ⭐⭐⭐ Development |
+
+### Diagnostic Tools
+```bash
+./diagnose-networking.sh           # Full network diagnostics
+./test-connectivity.sh             # Quick connectivity test
+```
+
+See **[NETWORKING_FIXES.md](NETWORKING_FIXES.md)** for detailed setup guide.
+
 ## Services
 
 ### Core Services
@@ -166,6 +189,40 @@ Default URLs when services are running:
 
 ## Troubleshooting
 
+### 🔧 Networking Issues (Solved)
+
+**Problem**: "Connection reset by peer" when accessing services via published ports
+
+**Solution**: Host networking pod mode eliminates pasta networking issues completely
+
+**Quick Fix**:
+```bash
+# Switch to pod mode (host networking)
+./switch-mode.sh pod --install
+```
+
+**Alternative for Development**:
+```bash
+# Fall back to standalone mode for debugging
+./switch-mode.sh standalone --install
+```
+
+**Diagnostic Commands**:
+```bash
+# Check current status
+./switch-mode.sh status
+
+# Quick connectivity test
+./test-connectivity.sh --quick
+
+# Test all endpoints manually
+curl http://localhost:3737     # Frontend
+curl http://localhost:8181/health  # API
+
+# Full network analysis (if needed)
+./diagnose-networking.sh
+```
+
 ### Common Issues
 
 **Services won't start:**
@@ -222,23 +279,33 @@ loginctl enable-linger <user_id>
 
 ```
 quadlet/
-├── install.sh                    # Installation script
-├── env.defaults                  # Environment variables template
-├── README.md                     # This file
-├── archon.pod                    # Pod configuration
-├── archon-network.network        # Network configuration
-├── archon-server.build           # Server build config
-├── archon-server.container       # Server container config
-├── archon-server-*.volume        # Server volumes
-├── archon-frontend.build         # Frontend build config
-├── archon-frontend.container     # Frontend container config
-├── archon-frontend-*.volume      # Frontend volumes
-├── archon-mcp.build              # MCP build config
-├── archon-mcp.container          # MCP container config
-├── archon-agents.build           # Agents build config
-├── archon-agents.container       # Agents container config
-├── archon-docs.build             # Docs build config
-└── archon-docs.container         # Docs container config
+├── install.sh                           # Installation script
+├── switch-mode.sh                       # Deployment mode switcher (pod/standalone)
+├── diagnose-networking.sh               # Network diagnostic tool
+├── test-connectivity.sh                 # Quick connectivity test
+├── env.defaults                         # Environment variables template
+├── README.md                            # This file
+├── NETWORKING_FIXES.md                  # Networking solution guide
+├── QUICK_REFERENCE.md                   # Quick reference card
+├── POD_NETWORKING_ISSUE.md              # Detailed issue documentation
+├── archon.pod                           # Pod configuration (host networking)
+├── archon-network.network               # Network configuration
+├── standalone/                          # Standalone containers
+│   ├── archon-server-standalone.container
+│   ├── archon-frontend-standalone.container
+│   └── archon-mcp-standalone.container
+├── archon-server.build                  # Server build config
+├── archon-server.container              # Server container config
+├── archon-server-*.volume               # Server volumes
+├── archon-frontend.build                # Frontend build config
+├── archon-frontend.container            # Frontend container config
+├── archon-frontend-*.volume             # Frontend volumes
+├── archon-mcp.build                     # MCP build config
+├── archon-mcp.container                 # MCP container config
+├── archon-agents.build                  # Agents build config
+├── archon-agents.container              # Agents container config
+├── archon-docs.build                    # Docs build config
+└── archon-docs.container                # Docs container config
 ```
 
 ## Benefits of Quadlet
@@ -256,4 +323,11 @@ quadlet/
 - Build files create images locally (no registry required)
 - Volume mounts enable hot-reload for development
 - Health checks ensure service reliability
-- Services use pod networking for internal communication
+- Pod configuration uses host networking to eliminate pasta networking issues
+- Standalone mode available as reliable fallback for development
+
+## Additional Resources
+
+- **[NETWORKING_FIXES.md](NETWORKING_FIXES.md)** - Complete networking solution guide
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick reference card
+- **[POD_NETWORKING_ISSUE.md](POD_NETWORKING_ISSUE.md)** - Detailed issue analysis
