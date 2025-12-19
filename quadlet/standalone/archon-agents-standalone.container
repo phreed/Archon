@@ -1,0 +1,22 @@
+# archon-agents-standalone.container
+[Unit]
+Description=Archon AI Agents Service (Standalone) for ML Model Inference and Reranking
+ConditionPathExists=/etc/podman/systemd/users/%U/agents.enabled
+
+[Container]
+ContainerName=archon-agents
+Image=localhost/archon-agents:latest
+Network=archon-network
+PublishPort=8052:8052
+
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
+
+HealthCmd=["CMD", "sh", "-c", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8052/health')\""]
+HealthInterval=30s
+HealthTimeout=10s
+HealthRetries=3
+HealthStartPeriod=40s
+
+[Install]
+WantedBy=default.target

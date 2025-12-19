@@ -2,6 +2,7 @@
 
 # install.sh - Install Archon quadlet files for rootless systemctl
 # This script copies quadlet files to the appropriate systemd user directories
+# Note: Use switch-mode.sh for advanced deployment mode switching (pod vs standalone)
 
 set -e
 
@@ -183,7 +184,12 @@ if [[ "$ENV_MISSING" == true ]]; then
     echo -e "${YELLOW}⚠️  Remember to configure your .env file before starting services!${NC}"
 else
     echo -e "${GREEN}🎉 Installation complete! You can now start building and running services.${NC}"
-fi
+    fi
 
-echo
-echo -e "${BLUE}💡 Tip:${NC} Use 'systemctl --user enable <service>' to start services on boot"
+    echo
+    echo -e "${BLUE}🔄 Deployment Modes:${NC}"
+    echo "  • Default (Pod):     Services run in a shared pod (current installation)"
+    echo "  • Standalone:        Services run as individual containers"
+    echo "  • Mode Switcher:     Use './switch-mode.sh standalone' to switch modes"
+    echo
+    echo -e "${BLUE}💡 Tip:${NC} Use 'systemctl --user enable <service>' to start services on boot"

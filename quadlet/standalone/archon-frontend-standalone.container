@@ -1,0 +1,22 @@
+# archon-frontend-standalone.container
+[Unit]
+Description=Archon React Frontend UI (Standalone) with Vite Development Server
+Requires=archon-server-standalone.service
+After=archon-server-standalone.service
+
+[Container]
+ContainerName=archon-ui
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
+HealthCmd=["curl","-f","http://localhost:3737"]
+HealthInterval=30s
+HealthRetries=3
+HealthTimeout=10s
+Image=localhost/archon-frontend:latest
+Network=archon-network
+PublishPort=3737:3737
+Volume=archon-frontend-src:/app/src
+Volume=archon-frontend-public:/app/public
+
+[Install]
+WantedBy=default.target

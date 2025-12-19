@@ -1,0 +1,18 @@
+# archon-docs-standalone.container
+[Unit]
+Description=Archon Documentation Site (Standalone) with Docusaurus
+
+[Container]
+ContainerName=archon-docs
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
+HealthCmd=["curl","-f","http://localhost:80"]
+HealthInterval=30s
+HealthRetries=3
+HealthTimeout=10s
+Image=localhost/archon-docs:latest
+Network=archon-network
+PublishPort=3838:80
+
+[Install]
+WantedBy=default.target

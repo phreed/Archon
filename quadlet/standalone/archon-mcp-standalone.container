@@ -1,0 +1,21 @@
+# archon-mcp-standalone.container
+[Unit]
+Description=Archon Model Context Protocol Server (Standalone) for AI Tool Integration
+Requires=archon-server-standalone.service
+After=archon-server-standalone.service
+
+[Container]
+ContainerName=archon-mcp
+EnvironmentFile=${ENV_PATH_DEFAULT}
+EnvironmentFile=${ENV_PATH}
+HealthCmd=["sh","-c","python -c \"import socket; s=socket.socket(); s.connect(('localhost', 8051)); s.close()\""]
+HealthInterval=30s
+HealthRetries=3
+HealthStartPeriod=1m
+HealthTimeout=10s
+Image=localhost/archon-mcp:latest
+Network=archon-network
+PublishPort=8051:8051
+
+[Install]
+WantedBy=default.target
