@@ -21,6 +21,7 @@ Pod=archon.pod
 Volume=archon-server-src:/app/src
 Volume=archon-server-tests:/app/tests
 Volume=archon-server-migration:/app/migration
+Volume=/run/user/1000/podman/podman.sock:/var/run/docker.sock:Z
 
 [Install]
 WantedBy=default.target

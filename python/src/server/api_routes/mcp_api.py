@@ -2,14 +2,13 @@
 MCP API endpoints for Archon
 
 Provides status and configuration endpoints for the MCP service.
-The MCP container is managed by docker-compose, not by this API.
+The MCP service runs independently and status is checked via HTTP.
 """
 
 import os
 from typing import Any
 
-import docker
-from docker.errors import NotFound
+import httpx
 from fastapi import APIRouter, HTTPException
 
 # Import unified logging
@@ -18,61 +17,45 @@ from ..config.logfire_config import api_logger, safe_set_attribute, safe_span
 router = APIRouter(prefix="/api/mcp", tags=["mcp"])
 
 
-def get_container_status() -> dict[str, Any]:
-    """Get simple MCP container status without Docker management."""
-    docker_client = None
+def get_mcp_service_status() -> dict[str, Any]:
+    """Get MCP service status via port connectivity check."""
     try:
-        docker_client = docker.from_env()
-        container = docker_client.containers.get("archon-mcp")
+        # Get MCP port from environment or use default
+        mcp_port = int(os.getenv("ARCHON_MCP_PORT", "8051"))
+        # Use container name for inter-container communication, fallback to localhost
+        mcp_host = os.getenv("ARCHON_MCP_HOST", "archon-mcp" if os.getenv("DOCKER_ENV") else "localhost")
 
-        # Get container status
-        container_status = container.status
+        # Try to connect to MCP service port (simple connectivity test)
+        import socket
 
-        # Map Docker statuses to simple statuses
-        if container_status == "running":
-            status = "running"
-            # Try to get uptime from container info
-            try:
-                from datetime import datetime
-                started_at = container.attrs["State"]["StartedAt"]
-                started_time = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
-                uptime = int((datetime.now(started_time.tzinfo) - started_time).total_seconds())
-            except Exception:
-                uptime = None
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3.0)  # 3 second timeout
+        result = sock.connect_ex((mcp_host, mcp_port))
+        sock.close()
+
+        if result == 0:
+            # Port is open, service is likely running
+            return {
+                "status": "running",
+                "uptime": None,  # Cannot determine uptime without container access
+                "logs": [],
+                "container_status": "running",
+                "health_check": "port_open",
+                "mcp_url": f"http://{mcp_host}:{mcp_port}/mcp",
+            }
         else:
-            status = "stopped"
-            uptime = None
+            return {
+                "status": "not_found",
+                "uptime": None,
+                "logs": [],
+                "container_status": "not_found",
+                "message": f"MCP service not reachable at {mcp_host}:{mcp_port}. Check if archon-mcp service is running.",
+                "mcp_url": f"http://{mcp_host}:{mcp_port}/mcp",
+            }
 
-        return {
-            "status": status,
-            "uptime": uptime,
-            "logs": [],  # No log streaming anymore
-            "container_status": container_status
-        }
-
-    except NotFound:
-        return {
-            "status": "not_found",
-            "uptime": None,
-            "logs": [],
-            "container_status": "not_found",
-            "message": "MCP container not found. Run: docker compose up -d archon-mcp"
-        }
     except Exception as e:
-        api_logger.error("Failed to get container status", exc_info=True)
-        return {
-            "status": "error",
-            "uptime": None,
-            "logs": [],
-            "container_status": "error",
-            "error": str(e)
-        }
-    finally:
-        if docker_client is not None:
-            try:
-                docker_client.close()
-            except Exception:
-                pass
+        api_logger.error("Failed to check MCP service status", exc_info=True)
+        return {"status": "error", "uptime": None, "logs": [], "container_status": "error", "error": str(e)}
 
 
 @router.get("/status")
@@ -83,7 +66,7 @@ async def get_status():
         safe_set_attribute(span, "method", "GET")
 
         try:
-            status = get_container_status()
+            status = get_mcp_service_status()
             api_logger.debug(f"MCP server status checked - status={status.get('status')}")
             safe_set_attribute(span, "status", status.get("status"))
             safe_set_attribute(span, "uptime", status.get("uptime"))
@@ -174,7 +157,7 @@ async def get_mcp_sessions():
 
         try:
             # Basic session info for now
-            status = get_container_status()
+            status = get_mcp_service_status()
 
             session_info = {
                 "active_sessions": 0,  # TODO: Implement real session tracking
