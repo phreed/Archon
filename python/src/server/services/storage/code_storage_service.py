@@ -745,7 +745,16 @@ async def _generate_summary_with_client(
                         removed_value = request_params.pop(param)
                         search_logger.warning(f"Removed unsupported Grok parameter '{param}': {removed_value}")
 
-                supported_params = ["model", "messages", "max_tokens", "temperature", "response_format", "stream", "tools", "tool_choice"]
+                supported_params = [
+                    "model",
+                    "messages",
+                    "max_tokens",
+                    "temperature",
+                    "response_format",
+                    "stream",
+                    "tools",
+                    "tool_choice",
+                ]
                 for param in list(request_params.keys()):
                     if param not in supported_params:
                         search_logger.warning(f"Parameter '{param}' may not be supported by Grok reasoning models")
@@ -1345,7 +1354,7 @@ async def add_code_examples_to_supabase(
 
         for retry in range(max_retries):
             try:
-                client.table("archon_code_examples").insert(batch_data).execute()
+                client.table("archon_code_examples").insert(batch_data).select().execute()
                 # Success - break out of retry loop
                 break
             except Exception as e:
@@ -1364,7 +1373,7 @@ async def add_code_examples_to_supabase(
                     successful_inserts = 0
                     for record in batch_data:
                         try:
-                            client.table("archon_code_examples").insert(record).execute()
+                            client.table("archon_code_examples").insert(record).select().execute()
                             successful_inserts += 1
                         except Exception as individual_error:
                             search_logger.error(

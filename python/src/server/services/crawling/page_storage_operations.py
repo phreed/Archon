@@ -91,12 +91,11 @@ class PageStorageOperations:
         # Batch upsert pages
         if pages_to_insert:
             try:
-                safe_logfire_info(
-                    f"Upserting {len(pages_to_insert)} pages into archon_page_metadata table"
-                )
+                safe_logfire_info(f"Upserting {len(pages_to_insert)} pages into archon_page_metadata table")
                 result = (
                     self.supabase_client.table("archon_page_metadata")
                     .upsert(pages_to_insert, on_conflict="url")
+                    .select()
                     .execute()
                 )
 
@@ -156,9 +155,7 @@ class PageStorageOperations:
             logger.warning(f"No sections found in llms-full.txt file: {base_url}")
             return url_to_page_id
 
-        safe_logfire_info(
-            f"Parsed {len(sections)} sections from llms-full.txt file: {base_url}"
-        )
+        safe_logfire_info(f"Parsed {len(sections)} sections from llms-full.txt file: {base_url}")
 
         # Prepare page records for each section
         pages_to_insert: list[dict[str, Any]] = []
@@ -190,12 +187,11 @@ class PageStorageOperations:
         # Batch upsert pages
         if pages_to_insert:
             try:
-                safe_logfire_info(
-                    f"Upserting {len(pages_to_insert)} section pages into archon_page_metadata"
-                )
+                safe_logfire_info(f"Upserting {len(pages_to_insert)} section pages into archon_page_metadata")
                 result = (
                     self.supabase_client.table("archon_page_metadata")
                     .upsert(pages_to_insert, on_conflict="url")
+                    .select()
                     .execute()
                 )
 
@@ -203,9 +199,7 @@ class PageStorageOperations:
                 for page in result.data:
                     url_to_page_id[page["url"]] = page["id"]
 
-                safe_logfire_info(
-                    f"Successfully stored {len(url_to_page_id)}/{len(pages_to_insert)} section pages"
-                )
+                safe_logfire_info(f"Successfully stored {len(url_to_page_id)}/{len(pages_to_insert)} section pages")
 
             except APIError as e:
                 safe_logfire_error(
@@ -232,17 +226,13 @@ class PageStorageOperations:
             chunk_count: Number of chunks created from this page
         """
         try:
-            self.supabase_client.table("archon_page_metadata").update(
-                {"chunk_count": chunk_count}
-            ).eq("id", page_id).execute()
+            self.supabase_client.table("archon_page_metadata").update({"chunk_count": chunk_count}).eq(
+                "id", page_id
+            ).select().execute()
 
             safe_logfire_info(f"Updated chunk_count={chunk_count} for page_id={page_id}")
 
         except APIError as e:
-            logger.warning(
-                f"Database error updating chunk_count for page {page_id}: {e}", exc_info=True
-            )
+            logger.warning(f"Database error updating chunk_count for page {page_id}: {e}", exc_info=True)
         except Exception as e:
-            logger.warning(
-                f"Unexpected error updating chunk_count for page {page_id}: {e}", exc_info=True
-            )
+            logger.warning(f"Unexpected error updating chunk_count for page {page_id}: {e}", exc_info=True)

@@ -36,8 +36,6 @@ class CredentialItem:
     description: str | None = None
 
 
-
-
 class CredentialService:
     """Service for managing application credentials and configuration."""
 
@@ -59,9 +57,7 @@ class CredentialService:
             key = os.getenv("SUPABASE_SERVICE_KEY")
 
             if not url or not key:
-                raise ValueError(
-                    "SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in environment variables"
-                )
+                raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set in environment variables")
 
             try:
                 # Initialize with standard Supabase client - no need for custom headers
@@ -233,7 +229,7 @@ class CredentialService:
             supabase.table("archon_settings").upsert(
                 data,
                 on_conflict="key",  # Specify the unique column for conflict resolution
-            ).execute()
+            ).select().execute()
 
             # Invalidate RAG settings cache if this is a rag_strategy setting
             if category == "rag_strategy":
@@ -244,6 +240,7 @@ class CredentialService:
                 # Also invalidate provider service cache to ensure immediate effect
                 try:
                     from .llm_provider_service import clear_provider_cache
+
                     clear_provider_cache()
                     logger.debug("Also cleared LLM provider service cache")
                 except Exception as e:
@@ -252,6 +249,7 @@ class CredentialService:
                 # Also invalidate LLM provider service cache for provider config
                 try:
                     from . import llm_provider_service
+
                     # Clear the provider config caches that depend on RAG settings
                     cache_keys_to_clear = ["provider_config_llm", "provider_config_embedding", "rag_strategy_settings"]
                     for cache_key in cache_keys_to_clear:
@@ -263,9 +261,7 @@ class CredentialService:
                 except Exception as e:
                     logger.error(f"Error invalidating LLM provider service cache: {e}")
 
-            logger.info(
-                f"Successfully {'encrypted and ' if is_encrypted else ''}stored credential: {key}"
-            )
+            logger.info(f"Successfully {'encrypted and ' if is_encrypted else ''}stored credential: {key}")
             return True
 
         except Exception as e:
@@ -294,6 +290,7 @@ class CredentialService:
                 # Also invalidate provider service cache to ensure immediate effect
                 try:
                     from .llm_provider_service import clear_provider_cache
+
                     clear_provider_cache()
                     logger.debug("Also cleared LLM provider service cache")
                 except Exception as e:
@@ -302,6 +299,7 @@ class CredentialService:
                 # Also invalidate LLM provider service cache for provider config
                 try:
                     from . import llm_provider_service
+
                     # Clear the provider config caches that depend on RAG settings
                     cache_keys_to_clear = ["provider_config_llm", "provider_config_embedding", "rag_strategy_settings"]
                     for cache_key in cache_keys_to_clear:
@@ -340,9 +338,7 @@ class CredentialService:
 
         try:
             supabase = self._get_supabase_client()
-            result = (
-                supabase.table("archon_settings").select("*").eq("category", category).execute()
-            )
+            result = supabase.table("archon_settings").select("*").eq("category", category).execute()
 
             credentials = {}
             for item in result.data:
@@ -445,16 +441,20 @@ class CredentialService:
                 # Validate that embedding provider actually supports embeddings
                 embedding_capable_providers = {"openai", "google", "ollama"}
 
-                if (explicit_embedding_provider and
-                    explicit_embedding_provider != "" and
-                    explicit_embedding_provider in embedding_capable_providers):
+                if (
+                    explicit_embedding_provider
+                    and explicit_embedding_provider != ""
+                    and explicit_embedding_provider in embedding_capable_providers
+                ):
                     # Use the explicitly set embedding provider
                     provider = explicit_embedding_provider
                     logger.debug(f"Using explicit embedding provider: '{provider}'")
                 else:
                     # Fall back to OpenAI as default embedding provider for backward compatibility
                     if explicit_embedding_provider and explicit_embedding_provider not in embedding_capable_providers:
-                        logger.warning(f"Invalid embedding provider '{explicit_embedding_provider}' doesn't support embeddings, defaulting to OpenAI")
+                        logger.warning(
+                            f"Invalid embedding provider '{explicit_embedding_provider}' doesn't support embeddings, defaulting to OpenAI"
+                        )
                     provider = "openai"
                     logger.debug(f"No explicit embedding provider set, defaulting to OpenAI for backward compatibility")
             else:

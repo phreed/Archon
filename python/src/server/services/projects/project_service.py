@@ -50,7 +50,7 @@ class ProjectService:
                 project_data["github_repo"] = github_repo.strip()
 
             # Insert project
-            response = self.supabase_client.table("archon_projects").insert(project_data).execute()
+            response = self.supabase_client.table("archon_projects").insert(project_data).select().execute()
 
             if not response.data:
                 logger.error("Supabase returned empty data for project creation")
@@ -88,26 +88,25 @@ class ProjectService:
             if include_content:
                 # Current behavior - maintain backward compatibility
                 response = (
-                    self.supabase_client.table("archon_projects")
-                    .select("*")
-                    .order("created_at", desc=True)
-                    .execute()
+                    self.supabase_client.table("archon_projects").select("*").order("created_at", desc=True).execute()
                 )
 
                 projects = []
                 for project in response.data:
-                    projects.append({
-                        "id": project["id"],
-                        "title": project["title"],
-                        "github_repo": project.get("github_repo"),
-                        "created_at": project["created_at"],
-                        "updated_at": project["updated_at"],
-                        "pinned": project.get("pinned", False),
-                        "description": project.get("description", ""),
-                        "docs": project.get("docs", []),
-                        "features": project.get("features", []),
-                        "data": project.get("data", []),
-                    })
+                    projects.append(
+                        {
+                            "id": project["id"],
+                            "title": project["title"],
+                            "github_repo": project.get("github_repo"),
+                            "created_at": project["created_at"],
+                            "updated_at": project["updated_at"],
+                            "pinned": project.get("pinned", False),
+                            "description": project.get("description", ""),
+                            "docs": project.get("docs", []),
+                            "features": project.get("features", []),
+                            "data": project.get("data", []),
+                        }
+                    )
             else:
                 # Lightweight response for MCP - fetch all data but only return metadata + stats
                 # FIXED: N+1 query problem - now using single query
@@ -126,20 +125,18 @@ class ProjectService:
                     has_data = bool(project.get("data", []))
 
                     # Return only metadata + stats, excluding large JSONB fields
-                    projects.append({
-                        "id": project["id"],
-                        "title": project["title"],
-                        "github_repo": project.get("github_repo"),
-                        "created_at": project["created_at"],
-                        "updated_at": project["updated_at"],
-                        "pinned": project.get("pinned", False),
-                        "description": project.get("description", ""),
-                        "stats": {
-                            "docs_count": docs_count,
-                            "features_count": features_count,
-                            "has_data": has_data
+                    projects.append(
+                        {
+                            "id": project["id"],
+                            "title": project["title"],
+                            "github_repo": project.get("github_repo"),
+                            "created_at": project["created_at"],
+                            "updated_at": project["updated_at"],
+                            "pinned": project.get("pinned", False),
+                            "description": project.get("description", ""),
+                            "stats": {"docs_count": docs_count, "features_count": features_count, "has_data": has_data},
                         }
-                    })
+                    )
 
             return True, {"projects": projects, "total_count": len(projects)}
 
@@ -155,12 +152,7 @@ class ProjectService:
             Tuple of (success, result_dict)
         """
         try:
-            response = (
-                self.supabase_client.table("archon_projects")
-                .select("*")
-                .eq("id", project_id)
-                .execute()
-            )
+            response = self.supabase_client.table("archon_projects").select("*").eq("id", project_id).execute()
 
             if response.data:
                 project = response.data[0]
@@ -208,9 +200,7 @@ class ProjectService:
                         business_sources = biz_sources_response.data
 
                 except Exception as e:
-                    logger.warning(
-                        f"Failed to retrieve linked sources for project {project['id']}: {e}"
-                    )
+                    logger.warning(f"Failed to retrieve linked sources for project {project['id']}: {e}")
 
                 # Add sources to project data
                 project["technical_sources"] = technical_sources
@@ -233,31 +223,18 @@ class ProjectService:
         """
         try:
             # First, check if project exists
-            check_response = (
-                self.supabase_client.table("archon_projects")
-                .select("id")
-                .eq("id", project_id)
-                .execute()
-            )
+            check_response = self.supabase_client.table("archon_projects").select("id").eq("id", project_id).execute()
             if not check_response.data:
                 return False, {"error": f"Project with ID {project_id} not found"}
 
             # Get task count for reporting
             tasks_response = (
-                self.supabase_client.table("archon_tasks")
-                .select("id")
-                .eq("project_id", project_id)
-                .execute()
+                self.supabase_client.table("archon_tasks").select("id").eq("project_id", project_id).execute()
             )
             tasks_count = len(tasks_response.data) if tasks_response.data else 0
 
             # Delete the project (tasks will be deleted by cascade)
-            response = (
-                self.supabase_client.table("archon_projects")
-                .delete()
-                .eq("id", project_id)
-                .execute()
-            )
+            response = self.supabase_client.table("archon_projects").delete().eq("id", project_id).execute()
 
             # For DELETE operations, success is indicated by no error, not by response.data content
             # response.data will be empty list [] even on successful deletion
@@ -280,11 +257,7 @@ class ProjectService:
         """
         try:
             response = (
-                self.supabase_client.table("archon_projects")
-                .select("features")
-                .eq("id", project_id)
-                .single()
-                .execute()
+                self.supabase_client.table("archon_projects").select("features").eq("id", project_id).single().execute()
             )
 
             if not response.data:
@@ -296,12 +269,14 @@ class ProjectService:
             feature_options = []
             for feature in features:
                 if isinstance(feature, dict) and "data" in feature and "label" in feature["data"]:
-                    feature_options.append({
-                        "id": feature.get("id", ""),
-                        "label": feature["data"]["label"],
-                        "type": feature["data"].get("type", ""),
-                        "feature_type": feature.get("type", "page"),
-                    })
+                    feature_options.append(
+                        {
+                            "id": feature.get("id", ""),
+                            "label": feature["data"]["label"],
+                            "type": feature["data"].get("type", ""),
+                            "feature_type": feature.get("type", "page"),
+                        }
+                    )
 
             return True, {"features": feature_options, "count": len(feature_options)}
 
@@ -314,9 +289,7 @@ class ProjectService:
             logger.error(f"Error getting project features: {e}")
             return False, {"error": f"Error getting project features: {str(e)}"}
 
-    def update_project(
-        self, project_id: str, update_fields: dict[str, Any]
-    ) -> tuple[bool, dict[str, Any]]:
+    def update_project(self, project_id: str, update_fields: dict[str, Any]) -> tuple[bool, dict[str, Any]]:
         """
         Update a project with specified fields.
 
@@ -352,6 +325,7 @@ class ProjectService:
                     .update({"pinned": False})
                     .neq("id", project_id)
                     .eq("pinned", True)
+                    .select()
                     .execute()
                 )
                 logger.debug(f"Unpinned {len(unpin_response.data or [])} other projects before pinning {project_id}")
@@ -361,6 +335,7 @@ class ProjectService:
                 self.supabase_client.table("archon_projects")
                 .update(update_data)
                 .eq("id", project_id)
+                .select()
                 .execute()
             )
 
@@ -369,12 +344,7 @@ class ProjectService:
                 return True, {"project": project, "message": "Project updated successfully"}
             else:
                 # If update didn't return data, fetch the project to ensure it exists and get current state
-                get_response = (
-                    self.supabase_client.table("archon_projects")
-                    .select("*")
-                    .eq("id", project_id)
-                    .execute()
-                )
+                get_response = self.supabase_client.table("archon_projects").select("*").eq("id", project_id).execute()
                 if get_response.data and len(get_response.data) > 0:
                     project = get_response.data[0]
                     return True, {"project": project, "message": "Project updated successfully"}
